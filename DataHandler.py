@@ -14,9 +14,9 @@ class DataHandler:
 
         try:
             if rows != 0:
-                data_frame = pd.read_csv(self.name, nrows=rows)
+                data_frame = pd.read_csv(self.name, nrows=rows, usecols=[1, 2, 3])
             else:
-                data_frame = pd.read_csv(self.name)
+                data_frame = pd.read_csv(self.name, usecols=[1, 2, 3])
 
             self.data_array = data_frame.values
         except Exception as e:
@@ -41,9 +41,9 @@ class DataHandler:
         if self.data_array is None:
             raise Exception("Данные не загружены")
 
-        latitudes = self.data_array[:, 1].astype(float)
-        longitudes = self.data_array[:, 2].astype(float)
-        shipments = self.data_array[:, 3].astype(float)
+        latitudes = self.data_array[:, 0].astype(np.float16)
+        longitudes = self.data_array[:, 1].astype(np.float16)
+        shipments = self.data_array[:, 2].astype(np.uint8)
 
         distances = np.sqrt((latitudes[:, np.newaxis] - latitudes) ** 2 + (longitudes[:, np.newaxis] - longitudes) ** 2)
 
@@ -53,6 +53,6 @@ class DataHandler:
 
         optimal_index = np.argmin(sums)
 
-        optimal_coordinates = self.data_array[optimal_index, :3]
+        optimal_coordinates = self.data_array[optimal_index, :2]
 
         return optimal_coordinates
