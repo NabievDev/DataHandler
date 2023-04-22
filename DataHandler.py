@@ -1,33 +1,37 @@
-import csv
+import pandas as pd
 import numpy as np
 from numpy import ndarray
 
 class DataHandler:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, rows:int = 0) -> None:
         '''
         name:str - имя файла, например test.csv
+        rows:int - количество строк, читаемых из файла
+        Если rows не указывается, читается весь файл
         '''
         self.name = name
         self.data_array = None
 
         try:
-            with open(self.name, 'r') as csvfile:
-                reader = csv.DictReader(csvfile)
-                data = []
-                for row in reader:
-                    data.append(row)
-                self.data_array = np.array(data)
-        except FileNotFoundError:
-            raise FileNotFoundError("Файл не найден")
+            if rows != 0:
+                data_frame = pd.read_csv(self.name, nrows=rows)
+            else:
+                data_frame = pd.read_csv(self.name)
+
+            self.data_array = data_frame.values
         except Exception as e:
-            raise Exception(f"Ошибка при чтении файла: {str(e)}")
+            raise Exception(f"Ошибка загрузки данных: {e}")
+
 
     def get_data_array(self) -> ndarray:
         '''
         get_data_array() возвращает данные из CSV файла в виде np.array (ndarray)
         '''
-        return self.data_array
+        if self.data_array is None:
+            raise Exception("Данные не загружены")
 
+        return self.data_array
+    
     def get_optimal_coordinates(self) -> ndarray:
         '''
         get_optimal_coordinates() - получить оптимальные координаты
@@ -52,4 +56,3 @@ class DataHandler:
         optimal_coordinates = self.data_array[optimal_index, :3]
 
         return optimal_coordinates
-    
